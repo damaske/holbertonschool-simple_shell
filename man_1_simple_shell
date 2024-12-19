@@ -1,0 +1,31 @@
+.TH SH 1 "December 2024" "Simple Shell Manual"
+
+.SH NAME
+Simple Shell - a simple UNIX command-line interpreter implemented as part of the Holberton School curriculum
+
+.SH SYNOPSIS
+simple shell [options]
+
+.SH DESCRIPTION
+Simple Shell
+
+.SH OPTIONS
+None.
+
+.SH USAGE
+None.
+
+.SH EXAMPLES
+None.
+
+.SH SEE ALSO
+None.
+
+.SH AUTHOR
+The Simple Shell was developed by Irada Nuraliyeva and Ahmed Taghiyev.
+
+.SH REPORTING BUGS
+None.
+
+.SH COPYRIGHT
+None.
