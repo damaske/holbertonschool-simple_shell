@@ -1,61 +1,56 @@
-#include "shell.h"
-
-void execute_command(char *line)
-{
-    pid_t pid;
-    char *token = strtok(line, " ");
-    
-    while (token != NULL)
-    {
-        pid = fork();
-
-        if (pid == 0)
-        {
-            execlp(token, token, NULL);
-            perror("execve");
-            exit(1);
-        }
-        else if (pid < 0)
-        {
-            perror("fork");
-            exit(1);
-        }
-        else
-        {
-            wait(NULL);
-        }
-        token = strtok(NULL, " ");
-    }
-}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int main(void)
 {
     char *line = NULL;
     size_t len = 0;
     ssize_t nread;
+    pid_t pid;
+    int status;
 
     while (1)
     {
         printf("#cisfun$ ");
-        nread = getline(&line, &len, stdin);
-
+	
+	nread = getline(&line, &len, stdin);
         if (nread == -1)
+	{
+            printf("\n");
+            break;
+        }
+	
+	if (line[nread - 1] == '\n')
+            line[nread - 1] = '\0';
+
+        pid = fork();
+
+        if (pid == -1)
         {
+            perror("fork");
             free(line);
-            exit(0);
+            exit(EXIT_FAILURE);
         }
-
-        line[strcspn(line, "\n")] = 0;
-
-        if (strlen(line) == 0)
-        {
-            continue;
+        if (pid == 0) 
+	{
+            char *args[] = {line, NULL};
+	    if (execve(line, args, NULL) == -1)
+            {
+                perror("execve");
+                free(line);
+                exit(EXIT_FAILURE);
+            }
         }
-
-        execute_command(line);
+        else 
+	{
+            wait(&status);
+	}
     }
 
     free(line);
     return 0;
 }
-
