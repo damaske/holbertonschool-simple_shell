@@ -4,7 +4,7 @@
  * Return: 0
  */
 
-int main(void)
+int betty(void)
 {
 	printf("Hello, friend");
 	return (0);
