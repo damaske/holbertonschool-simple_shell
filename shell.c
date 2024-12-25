@@ -1,15 +1,38 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/wait.h>
+#include "shell.h"
+
+void execute_command(char *line)
+{
+    pid_t pid;
+    char *token = strtok(line, " ");
+    
+    while (token != NULL)
+    {
+        pid = fork();
+
+        if (pid == 0)
+        {
+            execlp(token, token, NULL);
+            perror("execve");
+            exit(1);
+        }
+        else if (pid < 0)
+        {
+            perror("fork");
+            exit(1);
+        }
+        else
+        {
+            wait(NULL);
+        }
+        token = strtok(NULL, " ");
+    }
+}
 
 int main(void)
 {
     char *line = NULL;
     size_t len = 0;
     ssize_t nread;
-    pid_t pid;
 
     while (1)
     {
@@ -24,23 +47,12 @@ int main(void)
 
         line[strcspn(line, "\n")] = 0;
 
-        pid = fork();
+        if (strlen(line) == 0)
+        {
+            continue;
+        }
 
-        if (pid == 0)
-        {
-            execlp(line, line, NULL);
-            perror("execve");
-            exit(1);
-        }
-        else if (pid < 0)
-        {
-            perror("fork");
-            exit(1);
-        }
-        else
-        {
-            wait(NULL);
-        }
+        execute_command(line);
     }
 
     free(line);
