@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 int main(void)
 {
@@ -45,3 +46,4 @@ int main(void)
     free(line);
     return 0;
 }
+
