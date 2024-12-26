@@ -23,30 +23,34 @@ int main(void)
 
         line[strcspn(line, "\n")] = 0;
 
-        pid = fork();
-
-        if (pid == -1)
+        char *token = strtok(line, " ");
+        while (token != NULL)
         {
-            perror("fork");
-            free(line);
-            exit(EXIT_FAILURE);
-        }
-        if (pid == 0)
-        {
-            char *args[2];
-            args[0] = line;
-            args[1] = NULL;
-
-            if (execve(line, args, NULL) == -1)
+            pid = fork();
+            if (pid == -1)
             {
-                perror("execve");
+                perror("fork");
                 free(line);
                 exit(EXIT_FAILURE);
             }
-        }
-        else
-        {
-            wait(&status);
+            if (pid == 0)
+            {
+                char *args[2];
+                args[0] = token;
+                args[1] = NULL;
+
+                if (execve(token, args, NULL) == -1)
+                {
+                    perror("execve");
+                    free(line);
+                    exit(EXIT_FAILURE);
+                }
+            }
+            else
+            {
+                wait(&status);
+            }
+            token = strtok(NULL, " ");
         }
     }
 
