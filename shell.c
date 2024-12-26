@@ -43,7 +43,7 @@ int main(void)
             args[1] = NULL;
             if (execve(line, args, NULL) == -1)
             {
-                perror("./shell"); 
+                perror("./hsh"); 
                 free(line);
                 exit(EXIT_FAILURE);
             }
