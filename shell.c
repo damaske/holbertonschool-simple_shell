@@ -15,16 +15,13 @@ int main(void)
 
     while (1)
     {
-    
-	
-	nread = getline(&line, &len, stdin);
+        nread = getline(&line, &len, stdin);
         if (nread == -1)
-	{
-            printf("\n");
+        {
             break;
         }
-	
-    line[strcspn(line, "\n")] = 0;
+
+        line[strcspn(line, "\n")] = 0;
 
         pid = fork();
 
@@ -34,22 +31,23 @@ int main(void)
             free(line);
             exit(EXIT_FAILURE);
         }
-        if (pid == 0) 
-	{
+        if (pid == 0)
+        {
             char *args[2];
             args[0] = line;
             args[1] = NULL;
-	    if (execve(line, args, NULL) == -1)
+
+            if (execve(line, args, NULL) == -1)
             {
                 perror("execve");
                 free(line);
                 exit(EXIT_FAILURE);
             }
         }
-        else 
-	{
+        else
+        {
             wait(&status);
-	}
+        }
     }
 
     free(line);
