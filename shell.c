@@ -1,4 +1,9 @@
-#include "shell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int main(void)
 {
@@ -10,52 +15,44 @@ int main(void)
 
     while (1)
     {
-        printf("simple_shell$ ");
-
-        nread = getline(&line, &len, stdin);
+    
+	
+	nread = getline(&line, &len, stdin);
         if (nread == -1)
-        {
-            if (feof(stdin))
-            {
-                printf("\n");
-                break;
-            }
-            perror("getline");
-            continue;
+	{
+            printf("\n");
+            break;
         }
-
-        if (line[nread - 1] == '\n')
+	
+	if (line[nread - 1] == '\n')
             line[nread - 1] = '\0';
 
         pid = fork();
-        
+
         if (pid == -1)
         {
             perror("fork");
             free(line);
             exit(EXIT_FAILURE);
         }
-
-        if (pid == 0)
-        {
+        if (pid == 0) 
+	{
             char *args[2];
             args[0] = line;
             args[1] = NULL;
-            if (execve(line, args, NULL) == -1)
+	    if (execve(line, args, NULL) == -1)
             {
-                perror("./hsh"); 
+                perror("execve");
                 free(line);
                 exit(EXIT_FAILURE);
             }
         }
-        else
-        {
-            wait(&status); 
+        else 
+	{
+            wait(&status);
+	}
     }
 
-
-}
     free(line);
-    return (0);
-
+    return 0;
 }
