@@ -12,6 +12,7 @@ int main(void)
     ssize_t nread;
     pid_t pid;
     int status;
+    char *token;
 
     while (1)
     {
@@ -23,7 +24,7 @@ int main(void)
 
         line[strcspn(line, "\n")] = 0;
 
-        char *token = strtok(line, " ");
+        token = strtok(line, " ");
         while (token != NULL)
         {
             pid = fork();
