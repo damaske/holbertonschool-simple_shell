@@ -37,10 +37,7 @@ int main(void)
         }
         if (pid == 0) 
 	{
-            char *args[2];
-            args[0] = line;
-            args[1] = NULL;
-            
+            char *args[] = {line, NULL};
 	    if (execve(line, args, NULL) == -1)
             {
                 perror("execve");
