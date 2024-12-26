@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "shell.h"
 
 int main(void)
 {
@@ -15,7 +10,7 @@ int main(void)
 
     while (1)
     {
-        printf("#cisfun$ ");
+        printf("simple_shell$ ");
 	
 	nread = getline(&line, &len, stdin);
         if (nread == -1)
