@@ -25,6 +25,7 @@ int main(void)
             break;
         }
         line[strcspn(line, "\n")] = 0;
+
         i = 0;
         token = strtok(line, " ");
         while (token != NULL)
