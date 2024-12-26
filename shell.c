@@ -36,12 +36,11 @@ int main(void)
             }
             if (pid == 0)
             {
-                char *args[3];
-                args[0] = "./hbtn_ls";
-                args[1] = token;
-                args[2] = NULL;
+                char *args[2];
+                args[0] = token;
+                args[1] = NULL;
 
-                if (execve(args[0], args, NULL) == -1)
+                if (execve(token, args, NULL) == -1)
                 {
                     perror("execve");
                     free(line);
