@@ -2,50 +2,49 @@
 
 int main(void)
 {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t nread;
-    pid_t pid;
-    int status;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t nread;
+	pid_t pid;
+	int status;
 
-    while (1)
-    {
-        printf("simple_shell$ ");
-	
-	nread = getline(&line, &len, stdin);
-        if (nread == -1)
+	while (1)
 	{
-            printf("\n");
-            break;
-        }
-	
-	if (line[nread - 1] == '\n')
-            line[nread - 1] = '\0';
+		printf("simple_shell$ ");
 
-        pid = fork();
+		nread = getline(&line, &len, stdin);
+		if (nread == -1)
+		{
+			printf("\n");
+			break;
+		}
+		if (line[nread - 1] == '\n')
+			line[nread - 1] = '\0';
 
-        if (pid == -1)
-        {
-            perror("fork");
-            free(line);
-            exit(EXIT_FAILURE);
-        }
-        if (pid == 0) 
-	{
-            char *args[] = {line, NULL};
-	    if (execve(line, args, NULL) == -1)
-            {
-                perror("execve");
-                free(line);
-                exit(EXIT_FAILURE);
-            }
-        }
-        else 
-	{
-            wait(&status);
+		pid = fork();
+		
+		if (pid == -1)
+		{
+			perror("fork");
+			free(line);
+			exit(EXIT_FAILURE);
+		}
+		if (pid == 0)
+		{
+			char *args[] = {line, NULL};
+			if (execve(line, args, NULL) == -1)
+			{
+				perror("execve");
+				free(line);
+				exit(EXIT_FAILURE);
+			
+			}
+		}
+		else 
+		{
+			wait(&status);
+		}
 	}
-    }
-
-    free(line);
-    return 0;
+	free(line);
+	return (0);
 }
