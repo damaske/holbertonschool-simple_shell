@@ -15,8 +15,13 @@ int main(void)
         nread = getline(&line, &len, stdin);
         if (nread == -1)
         {
-            printf("\n");
-            break;
+            if (feof(stdin))
+            {
+                printf("\n");
+                break;
+            }
+            perror("getline");
+            continue;
         }
 
         if (line[nread - 1] == '\n')
@@ -30,26 +35,27 @@ int main(void)
             free(line);
             exit(EXIT_FAILURE);
         }
-        
+
         if (pid == 0)
         {
             char *args[2];
             args[0] = line;
             args[1] = NULL;
-
             if (execve(line, args, NULL) == -1)
             {
-                perror("execve");
+                perror("./shell"); 
                 free(line);
                 exit(EXIT_FAILURE);
             }
         }
-        else 
+        else
         {
-            wait(&status);
-        }
+            wait(&status); 
     }
 
+
+}
     free(line);
     return (0);
+
 }
