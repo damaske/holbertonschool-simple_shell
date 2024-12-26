@@ -37,9 +37,8 @@ int main(void)
             if (pid == 0)
             {
                 char *args[2];
-                args[0] = "./hbtn_ls";
-                args[1] = token;
-                args[2] = NULL;
+                args[0] = token;
+                args[1] = NULL;
 
                 if (execve(token, args, NULL) == -1)
                 {
