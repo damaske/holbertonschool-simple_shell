@@ -24,8 +24,7 @@ int main(void)
             break;
         }
 	
-	if (line[nread - 1] == '\n')
-            line[nread - 1] = '\0';
+    line[strcspn(line, "\n")] = 0;
 
         pid = fork();
 
