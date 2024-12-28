@@ -28,7 +28,8 @@ int main(void) {
         if (fork() == 0) {
             char *args[2];
             args[0] = cmd;
-            args[1] = NULL;
+            args[1] = strtok(NULL, " \t\n");
+            args[2] = NULL;
             if (execve(cmd, args, environ) == -1) {
                 perror("execve");
                 _exit(EXIT_FAILURE);
