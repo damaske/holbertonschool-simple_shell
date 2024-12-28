@@ -4,13 +4,11 @@ extern char **environ;
 
 int main(void) {
     char *buffer = NULL;
-            char *newline;
+    char *newline;
     size_t bufsize = 0;
 
     while (1) {
-        write(STDOUT_FILENO, "$ ", 2);
         if (getline(&buffer, &bufsize, stdin) == -1) {
-            write(STDOUT_FILENO, "\n", 1);
             free(buffer);
             break;
         }
