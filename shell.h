@@ -9,6 +9,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <ctype.h>
 
 void execute_command(char *line);
 
