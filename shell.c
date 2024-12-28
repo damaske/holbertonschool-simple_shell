@@ -4,6 +4,7 @@ extern char **environ;
 
 int main(void) {
     char *buffer = NULL;
+            char *newline;
     size_t bufsize = 0;
 
     while (1) {
@@ -14,12 +15,14 @@ int main(void) {
             break;
         }
 
-        char *newline = strchr(buffer, '\n');
+        newline = strchr(buffer, '\n');
         if (newline) *newline = '\0';
         if (buffer[0] == '\0') continue;
 
         if (fork() == 0) {
-            char *args[] = {buffer, NULL};
+            char *args[2];
+            args[0] = buffer;
+            args[1] = NULL;
             execve(buffer, args, environ);
             perror("execve");
             _exit(EXIT_FAILURE);
