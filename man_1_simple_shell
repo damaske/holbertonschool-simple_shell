@@ -1,31 +1,79 @@
 .TH SH 1 "December 2024" "Simple Shell Manual"
 
 .SH NAME
-Simple Shell - a simple UNIX command-line interpreter implemented as part of the Holberton School curriculum
+aishell \ Simple Shell - a simple UNIX command-line interpreter implemented as part of the Holberton School curriculum
 
 .SH SYNOPSIS
-simple shell [options]
+.B aishell
+.RB [ "command" ]
+.br
+.B exit
+.br
+.B env
 
 .SH DESCRIPTION
-Simple Shell
+.B aishell
+is a simple command interpreter that supports the execution of external programs and built-in commands "exit" and "env".
 
-.SH OPTIONS
-None.
+.B aishell
+executes commands provided by the user and runs them in a separate process using
+.B fork()
+and
+.B execve().
 
-.SH USAGE
-None.
+.SH BUILT-IN COMMANDS
+
+.TP
+.B exit
+Exits the shell. The exit status returned is the exit code of the last executed command.
+
+.TP
+.B env
+Prints all environment variables for the current process.
 
 .SH EXAMPLES
-None.
+
+.TP
+Running commands:
+  $ aishell
+  shell> ls
+  /home/user/docs
+  shell> exit
+
+Printing environment variables:
+  shell> env
+  HBTN=Holberton
+  PATH=/usr/local/bin:/usr/bin:/bin
+  SHLVL=0
+  ...
+
+.SH FUNCTIONS
+.B get_path()
+Returns the string containing the directories listed in the environment variable
+.B PATH.
+This function is used to find the location of executable files.
+
+.B get_full_path(char *arg, int *status)
+Takes a command name and searches for its full path in the directories specified in the
+.B PATH
+environment variable. If the file is found, it returns the full path, otherwise, it prints an error message and sets the exit status to 127.
+
+.B handle_exit()
+Exits the shell and returns the exit status.
+
+.B print_env()
+Prints all environment variables available in the current process. Each variable is printed on a new line.
+
+.SH FILES
+/etc/profile
+~/.bashrc
+
+.SH ERRORS
+If a command is not found, the following message will be printed:
+  "command: not found"
 
 .SH SEE ALSO
-None.
+bash(1), execve(2), fork(2), wait(2)
 
 .SH AUTHOR
 The Simple Shell was developed by Irada Nuraliyeva and Ahmed Taghiyev.
-
-.SH REPORTING BUGS
-None.
-
-.SH COPYRIGHT
-None.
