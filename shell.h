@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/wait.h>
 
 void execute_command(char *cmd, char **args, char **command);
 void handle_exit(char *cmd);

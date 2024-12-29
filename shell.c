@@ -1,11 +1,4 @@
 #include "shell.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
 
 extern char **environ;
 
