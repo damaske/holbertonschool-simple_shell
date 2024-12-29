@@ -2,84 +2,49 @@
 
 extern char **environ;
 
-char **pathfinder(char *cmd, char **command)
-{
-    char *current_path, *temp_path;
-    char *path_tok;
-    char *fullpath;
-    size_t arglen = strlen(cmd);
-    int i;
+char *find_command_in_path(char *cmd) {
+    char *path;
+    char *path_copy;
+    char *dir;
+    struct stat st;
+    char *full_path;
 
-    fullpath = NULL;
+    path = getenv("PATH");
+    if (!path) return NULL;
 
-    if (strchr(cmd, '/') != NULL && access(cmd, F_OK) == 0) {
-        command[0] = cmd;
-        return (command);
-    }
+    path_copy = strdup(path);
+    dir = strtok(path_copy, ":");
 
-    path_tok = NULL;
-
-    current_path = NULL;
-    for (i = 0; environ[i] != NULL; i++) {
-        if (strncmp(environ[i], "PATH=", 5) == 0) {
-            current_path = environ[i] + 5;
-            break;
+    while (dir) {
+        full_path = malloc(strlen(dir) + strlen(cmd) + 2);
+        if (!full_path) {
+            free(path_copy);
+            return NULL;
         }
-    }
 
-    if (current_path == NULL) {
-        return NULL;
-    }
+        strcpy(full_path, dir);
+        strcat(full_path, "/");
+        strcat(full_path, cmd);
 
-    temp_path = strdup(current_path);
-    path_tok = strtok(temp_path, ":");
-
-    while (path_tok) {
-        fullpath = malloc(arglen + strlen(path_tok) + 2);
-        sprintf(fullpath, "%s/%s", path_tok, cmd);
-        if (access(fullpath, F_OK) == 0) {
-            command[0] = fullpath;
-            free(temp_path);
-            return (command);
+        if (stat(full_path, &st) == 0) {
+            free(path_copy);
+            return full_path;
         }
-        path_tok = strtok(NULL, ":");
-        free(fullpath);
+
+        free(full_path);
+        dir = strtok(NULL, ":");
     }
-    free(temp_path);
-    return (NULL);
+
+    free(path_copy);
+    return NULL;
 }
 
-void handle_exit(char *cmd)
-{
-    if (cmd != NULL && strcmp(cmd, "exit") == 0) {
-        exit(0);
-    }
-}
-
-void execute_command(char *cmd, char **args, char **command)
-{
-    if (pathfinder(cmd, command) != NULL) {
-        if (fork() == 0) {
-            if (execve(command[0], args, environ) == -1) {
-                _exit(EXIT_FAILURE);
-            }
-        } else {
-            wait(NULL);
-        }
-    } else {
-        fprintf(stderr, "%s: command not found\n", cmd);
-    }
-}
-
-int main(void)
-{
+int main(void) {
     char *buffer = NULL;
     char *newline;
     char *cmd;
     size_t bufsize = 0;
-    char *args[100];
-    char *command[1];
-    int i;
+    char *full_cmd_path = NULL;
 
     while (1) {
         if (getline(&buffer, &bufsize, stdin) == -1) {
@@ -88,8 +53,7 @@ int main(void)
         }
 
         newline = strchr(buffer, '\n');
-        if (newline)
-            *newline = '\0';
+        if (newline) *newline = '\0';
 
         if (buffer[0] == '\0')
             continue;
@@ -98,16 +62,29 @@ int main(void)
         if (cmd == NULL)
             continue;
 
-        handle_exit(cmd);
-
-        args[0] = cmd;
-        i = 1;
-        while ((args[i] = strtok(NULL, " \t\n")) != NULL) {
-            i++;
+        if (cmd[0] != '/' && cmd[0] != '.') {
+            full_cmd_path = find_command_in_path(cmd);
+        } else {
+            full_cmd_path = strdup(cmd);
         }
-        args[i] = NULL;
 
-        execute_command(cmd, args, command);
+        if (full_cmd_path) {
+            if (fork() == 0) {
+                char *args[3];
+                args[0] = full_cmd_path;
+                args[1] = strtok(NULL, " \t\n");
+                args[2] = NULL;
+                if (execve(full_cmd_path, args, environ) == -1) {
+                    perror("execve");
+                    _exit(EXIT_FAILURE);
+                }
+            } else {
+                wait(NULL);
+            }
+            free(full_cmd_path);
+        } else {
+            fprintf(stderr, "%s: command not found\n", cmd);
+        }
     }
 
     return 0;
