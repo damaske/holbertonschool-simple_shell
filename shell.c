@@ -84,7 +84,7 @@ int main(void)
         newline = strchr(buffer, '\n');
         if (newline)
             *newline = '\0';
-	if (strcmp(buffer, "exit") == 0);
+	if (strcmp(buffer, "exit") == 0)
 	{
 		free(buffer);
 		exit(status);
