@@ -33,12 +33,14 @@ char *get_full_path(char *arg, int *status)
         strcpy(full_path, arg);
         return (full_path);
     }
+
     if (get_path() == NULL)
     {
         fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
         *status = 127;
         return (NULL);
     }
+
     PATH = strdup(get_path());
     dir = strtok(PATH, ":");
     while (dir)
@@ -61,6 +63,14 @@ char *get_full_path(char *arg, int *status)
     return (NULL);
 }
 
+void set_env_path(void)
+{
+    if (setenv("PATH", "", 1) != 0)
+    {
+        perror("setenv");
+    }
+}
+
 int main(void)
 {
     char *buffer = NULL;
@@ -80,21 +90,22 @@ int main(void)
             free(buffer);
             break;
         }
-        
+
         newline = strchr(buffer, '\n');
         if (newline)
             *newline = '\0';
-	if (strcmp(buffer, "exit") == 0)
-	{
-        handle_exit();
-	}
-    
-    if (strcmp(buffer, "env") == 0)
-    {
-        print_env();
-        continue;
-    }
-    
+
+        if (strcmp(buffer, "exit") == 0)
+        {
+            handle_exit();
+        }
+
+        if (strcmp(buffer, "env") == 0)
+        {
+            print_env();
+            continue;
+        }
+
         if (buffer[0] == '\0')
             continue;
 
@@ -114,9 +125,21 @@ int main(void)
         }
         args[i] = NULL;
 
+        if (get_full_path(cmd, &status) == NULL)
+        {
+            continue;
+        }
+
         full_path = get_full_path(cmd, &status);
         if (full_path == NULL)
             continue;
+
+        if (access(full_path, F_OK) != 0)
+        {
+            fprintf(stderr, "./hsh: 1: %s: not found\n", cmd);
+            free(full_path);
+            continue;
+        }
 
         if (fork() == 0)
         {
@@ -129,10 +152,10 @@ int main(void)
         else
         {
             wait(&status);
-	    if (WIFEXITED(status))
-	    {
-		    status = WEXITSTATUS(status);
-	    }
+            if (WIFEXITED(status))
+            {
+                status = WEXITSTATUS(status);
+            }
         }
 
         free(full_path);
