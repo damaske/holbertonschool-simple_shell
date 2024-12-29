@@ -12,6 +12,9 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
-void execute_command(char *line);
+void execute_command(char *cmd, char **args, char **command);
+void handle_exit(char *cmd);
+char **pathfinder(char *cmd, char **command);
+
 
 #endif

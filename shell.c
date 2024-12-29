@@ -49,14 +49,37 @@ char **pathfinder(char *cmd, char **command)
     return (NULL);
 }
 
+void handle_exit(char *cmd)
+{
+    if (cmd != NULL && strcmp(cmd, "exit") == 0) {
+        exit(0);
+    }
+}
+
+void execute_command(char *cmd, char **args, char **command)
+{
+    if (pathfinder(cmd, command) != NULL) {
+        if (fork() == 0) {
+            if (execve(command[0], args, environ) == -1) {
+                _exit(EXIT_FAILURE);
+            }
+        } else {
+            wait(NULL);
+        }
+    } else {
+        fprintf(stderr, "%s: command not found\n", cmd);
+    }
+}
+
 int main(void)
 {
     char *buffer = NULL;
     char *newline;
     char *cmd;
     size_t bufsize = 0;
-    char *args[3];
+    char *args[100];
     char *command[1];
+    int i;
 
     while (1) {
         if (getline(&buffer, &bufsize, stdin) == -1) {
@@ -75,21 +98,16 @@ int main(void)
         if (cmd == NULL)
             continue;
 
-        args[0] = cmd;
-        args[1] = strtok(NULL, " \t\n");
-        args[2] = NULL;
+        handle_exit(cmd);
 
-        if (pathfinder(cmd, command) != NULL) {
-            if (fork() == 0) {
-                if (execve(command[0], args, environ) == -1) {
-                    _exit(EXIT_FAILURE);
-                }
-            } else {
-                wait(NULL);
-            }
-        } else {
-            fprintf(stderr, "%s: command not found\n", cmd);
+        args[0] = cmd;
+        i = 1;
+        while ((args[i] = strtok(NULL, " \t\n")) != NULL) {
+            i++;
         }
+        args[i] = NULL;
+
+        execute_command(cmd, args, command);
     }
 
     return 0;
