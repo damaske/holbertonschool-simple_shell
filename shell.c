@@ -74,6 +74,12 @@ int main(void)
         if (newline)
             *newline = '\0';
 
+	if (strcmp(buffer , "exit") == 0)
+	{
+		free(buffer);
+		break;
+	}
+
         if (buffer[0] == '\0')
             continue;
 
