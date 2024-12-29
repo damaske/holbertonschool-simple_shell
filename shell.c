@@ -1,37 +1,119 @@
-#include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 extern char **environ;
 
-char *get_command_path(char *cmd) {
-    char *path_env;
-    char *path;
-    char *dir;
-    char *full_path;
+char *find_command(char *cmd);
 
-    path_env = getenv("PATH");
-    if (path_env == NULL) {
-        return NULL;
+int main(void)
+{
+    char *buffer = NULL;
+    size_t bufsize = 0;
+    char *cmd = NULL, *args[1024], *token = NULL;
+    pid_t pid;
+    int i;
+
+    while (1)
+    {
+        if (getline(&buffer, &bufsize, stdin) == -1)
+        {
+            free(buffer);
+            break;
+        }
+
+        if (buffer[0] == '\n')
+            continue;
+
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        cmd = strtok(buffer, " ");
+        if (cmd == NULL)
+            continue;
+
+        args[0] = cmd;
+        i = 1;
+        while ((token = strtok(NULL, " ")) != NULL)
+        {
+            args[i] = token;
+            i++;
+        }
+        args[i] = NULL;
+
+        cmd = find_command(args[0]);
+        if (cmd == NULL)
+        {
+            fprintf(stderr, "./hsh: %s: Command not found\n", args[0]);
+            continue;
+        }
+
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            free(cmd);
+            free(buffer);
+            exit(EXIT_FAILURE);
+        }
+
+        if (pid == 0)
+        {
+            if (execve(cmd, args, environ) == -1)
+            {
+                perror("./hsh");
+                free(cmd);
+                _exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            wait(NULL);
+            free(cmd);
+        }
     }
 
+    free(buffer);
+    return 0;
+}
+
+char *find_command(char *cmd)
+{
+    char *path_env = getenv("PATH");
+    char *path = NULL, *dir = NULL;
+    char *full_path = NULL;
+    size_t len;
+
+    if (access(cmd, X_OK) == 0)
+        return strdup(cmd);
+
+    if (path_env == NULL || cmd == NULL)
+        return NULL;
+
     path = strdup(path_env);
+    if (path == NULL)
+        return NULL;
+
     dir = strtok(path, ":");
-
-    while (dir != NULL) {
-        full_path = malloc(strlen(dir) + strlen(cmd) + 2);
-
-        if (full_path == NULL) {
+    while (dir != NULL)
+    {
+        len = strlen(dir) + strlen(cmd) + 2;
+        full_path = malloc(len);
+        if (full_path == NULL)
+        {
             free(path);
             return NULL;
         }
 
-        sprintf(full_path, "%s/%s", dir, cmd);
+        strcpy(full_path, dir);
+        strcat(full_path, "/");
+        strcat(full_path, cmd);
 
-        if (access(full_path, X_OK) == 0) {
+        if (access(full_path, X_OK) == 0)
+        {
             free(path);
             return full_path;
         }
@@ -43,6 +125,7 @@ char *get_command_path(char *cmd) {
     free(path);
     return NULL;
 }
+<<<<<<< HEAD
 
 int main(void) {
     char *buffer = NULL;
@@ -120,3 +203,5 @@ int main(void) {
     free(buffer);
     return 0;
 }
+=======
+>>>>>>> 5a4b819 (Updat)
