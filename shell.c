@@ -9,7 +9,6 @@ char *get_path(void)
 
     if (env == NULL)
         return (NULL);
-
     while (*env != NULL)
     {
         if (strncmp(*env, "PATH=", 5) == 0)
@@ -30,64 +29,26 @@ char *get_full_path(char *arg, int *status)
 
     if (access(arg, F_OK) == 0)
     {
-        if (access(arg, X_OK) != 0) // Проверяем доступность выполнения
-        {
-            fprintf(stderr, "./hsh: 1: %s: Permission denied\n", arg);
-            *status = 126; // Код ошибки для "нет прав выполнения"
-            return (NULL);
-        }
-
         full_path = malloc(strlen(arg) + 1);
-        if (!full_path)
-        {
-            perror("malloc");
-            *status = 1;
-            return (NULL);
-        }
         strcpy(full_path, arg);
         return (full_path);
     }
-
-    PATH = get_path();
-    if (PATH == NULL)
+    if (get_path() == NULL)
     {
         fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
         *status = 127;
         return (NULL);
     }
-
-    PATH = strdup(PATH);
-    if (!PATH)
-    {
-        perror("strdup");
-        *status = 1;
-        return (NULL);
-    }
-
+    PATH = strdup(get_path());
     dir = strtok(PATH, ":");
     while (dir)
     {
         full_path = malloc(strlen(dir) + strlen(arg) + 2);
-        if (!full_path)
-        {
-            perror("malloc");
-            *status = 1;
-            free(PATH);
-            return (NULL);
-        }
         strcpy(full_path, dir);
         strcat(full_path, "/");
         strcat(full_path, arg);
-
         if (access(full_path, F_OK) == 0)
         {
-            if (access(full_path, X_OK) != 0) // Проверяем доступность выполнения
-            {
-                fprintf(stderr, "./hsh: 1: %s: Permission denied\n", arg);
-                *status = 126;
-                free(full_path);
-                continue;
-            }
             free(PATH);
             return (full_path);
         }
@@ -119,26 +80,26 @@ int main(void)
             free(buffer);
             break;
         }
-
+        
         newline = strchr(buffer, '\n');
         if (newline)
             *newline = '\0';
-
-        if (strcmp(buffer, "exit") == 0)
-        {
-            handle_exit();
-        }
-
-        if (strcmp(buffer, "env") == 0)
-        {
-            print_env();
-            continue;
-        }
-
+	if (strcmp(buffer, "exit") == 0)
+	{
+        handle_exit();
+	}
+    
+    if (strcmp(buffer, "env") == 0)
+    {
+        print_env();
+        continue;
+    }
+    
         if (buffer[0] == '\0')
             continue;
 
         cmd = strtok(buffer, " \t\n");
+
         if (cmd == NULL)
             continue;
 
@@ -168,10 +129,10 @@ int main(void)
         else
         {
             wait(&status);
-            if (WIFEXITED(status))
-            {
-                status = WEXITSTATUS(status);
-            }
+	    if (WIFEXITED(status))
+	    {
+		    status = WEXITSTATUS(status);
+	    }
         }
 
         free(full_path);
