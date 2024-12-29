@@ -84,6 +84,11 @@ int main(void)
         newline = strchr(buffer, '\n');
         if (newline)
             *newline = '\0';
+	if (strcmp(buffer, "exit") == 0);
+	{
+		free(buffer);
+		exit(status);
+	}
         
         if (buffer[0] == '\0')
             continue;
@@ -118,7 +123,11 @@ int main(void)
         }
         else
         {
-            wait(NULL);
+            wait(&status);
+	    if (WIFEXITED(status))
+	    {
+		    status = WEXITSTATUS(status);
+	    }
         }
 
         free(full_path);
