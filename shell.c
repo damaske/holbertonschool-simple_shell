@@ -67,11 +67,12 @@ int main(void)
     char *newline;
     char *cmd;
     size_t bufsize = 0;
-    int status = 0;
+    int status = 0;  // This will be used to store the exit status of the child process.
     char *args[64];
     int i;
     char *arg;
     char *full_path;
+    pid_t pid;
 
     while (1)
     {
@@ -84,16 +85,16 @@ int main(void)
         newline = strchr(buffer, '\n');
         if (newline)
             *newline = '\0';
-	if (strcmp(buffer, "exit") == 0)
-	{
-        handle_exit();
-	}
+        if (strcmp(buffer, "exit") == 0)
+        {
+            handle_exit();
+        }
     
-    if (strcmp(buffer, "env") == 0)
-    {
-        print_env();
-        continue;
-    }
+        if (strcmp(buffer, "env") == 0)
+        {
+            print_env();
+            continue;
+        }
     
         if (buffer[0] == '\0')
             continue;
@@ -118,21 +119,37 @@ int main(void)
         if (full_path == NULL)
             continue;
 
-        if (fork() == 0)
+        // Check if the command is executable
+        if (access(full_path, X_OK) != 0)
         {
+            fprintf(stderr, "./hsh: 1: %s: not found\n", cmd);
+            free(full_path);
+            continue;
+        }
+
+        pid = fork();
+        if (pid == 0)
+        {
+            // Child process
             if (execve(full_path, args, environ) == -1)
             {
                 perror("execve");
                 _exit(EXIT_FAILURE);
             }
         }
+        else if (pid > 0)
+        {
+            // Parent process
+            waitpid(pid, &status, 0);
+            if (WIFEXITED(status))
+            {
+                status = WEXITSTATUS(status);
+            }
+        }
         else
         {
-            wait(&status);
-	    if (WIFEXITED(status))
-	    {
-		    status = WEXITSTATUS(status);
-	    }
+            // Fork failed
+            perror("fork");
         }
 
         free(full_path);
