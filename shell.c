@@ -59,7 +59,7 @@ int main(void)
     char *cmd;
     size_t bufsize = 0;
     char *full_cmd_path;
-    int status;
+    int status = 0;
 
     buffer = NULL;
     full_cmd_path = NULL;
