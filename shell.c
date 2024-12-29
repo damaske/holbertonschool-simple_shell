@@ -1,4 +1,11 @@
 #include "shell.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 
 extern char **environ;
 
@@ -13,6 +20,8 @@ char *find_command_in_path(char *cmd) {
     if (!path) return NULL;
 
     path_copy = strdup(path);
+    if (!path_copy) return NULL;
+
     dir = strtok(path_copy, ":");
 
     while (dir) {
