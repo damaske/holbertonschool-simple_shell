@@ -2,12 +2,13 @@
 
 extern char **environ;
 
-char **pathfinder(char *cmd, char **command, __attribute__((unused)) char **envp)
+char **pathfinder(char *cmd, char **command)
 {
     char *current_path, *temp_path;
     char *path_tok;
     char *fullpath;
     size_t arglen = strlen(cmd);
+    int i;
 
     fullpath = NULL;
 
@@ -17,7 +18,19 @@ char **pathfinder(char *cmd, char **command, __attribute__((unused)) char **envp
     }
 
     path_tok = NULL;
-    current_path = getenv("PATH");
+
+    current_path = NULL;
+    for (i = 0; environ[i] != NULL; i++) {
+        if (strncmp(environ[i], "PATH=", 5) == 0) {
+            current_path = environ[i] + 5;
+            break;
+        }
+    }
+
+    if (current_path == NULL) {
+        return NULL;
+    }
+
     temp_path = strdup(current_path);
     path_tok = strtok(temp_path, ":");
 
@@ -66,7 +79,7 @@ int main(void)
         args[1] = strtok(NULL, " \t\n");
         args[2] = NULL;
 
-        if (pathfinder(cmd, command, environ) != NULL) {
+        if (pathfinder(cmd, command) != NULL) {
             if (fork() == 0) {
                 if (execve(command[0], args, environ) == -1) {
                     _exit(EXIT_FAILURE);
