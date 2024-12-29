@@ -2,18 +2,29 @@
 
 extern char **environ;
 
-char *find_command_in_path(char *cmd) {
+char *find_command_in_path(char *cmd)
+{
     char *path;
     char *path_copy;
     char *dir;
     struct stat st;
     char *full_path;
 
-    path = getenv("PATH");
-    if (!path) return NULL;
+    int i;
+    path = NULL;
+    for (i = 0; environ[i] != NULL; i++) {
+        if (strncmp(environ[i], "PATH=", 5) == 0) {
+            path = environ[i] + 5;
+            break;
+        }
+    }
+
+    if (!path)
+        return NULL;
 
     path_copy = strdup(path);
-    if (!path_copy) return NULL;
+    if (!path_copy)
+        return NULL;
 
     dir = strtok(path_copy, ":");
 
@@ -41,12 +52,17 @@ char *find_command_in_path(char *cmd) {
     return NULL;
 }
 
-int main(void) {
-    char *buffer = NULL;
+int main(void)
+{
+    char *buffer;
     char *newline;
     char *cmd;
     size_t bufsize = 0;
-    char *full_cmd_path = NULL;
+    char *full_cmd_path;
+    int status;
+
+    buffer = NULL;
+    full_cmd_path = NULL;
 
     while (1) {
         if (getline(&buffer, &bufsize, stdin) == -1) {
@@ -55,7 +71,8 @@ int main(void) {
         }
 
         newline = strchr(buffer, '\n');
-        if (newline) *newline = '\0';
+        if (newline)
+            *newline = '\0';
 
         if (buffer[0] == '\0')
             continue;
@@ -76,12 +93,13 @@ int main(void) {
                 args[0] = full_cmd_path;
                 args[1] = strtok(NULL, " \t\n");
                 args[2] = NULL;
+
                 if (execve(full_cmd_path, args, environ) == -1) {
                     perror("execve");
                     _exit(EXIT_FAILURE);
                 }
             } else {
-                wait(NULL);
+                wait(&status);
             }
             free(full_cmd_path);
         } else {
