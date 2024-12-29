@@ -11,5 +11,7 @@
 #include <errno.h>
 
 void execute_command(char *cmd);
+void handle_exit(void);
+void print_env(void);
 
 #endif

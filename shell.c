@@ -86,10 +86,15 @@ int main(void)
             *newline = '\0';
 	if (strcmp(buffer, "exit") == 0)
 	{
-		free(buffer);
-		exit(status);
+        handle_exit();
 	}
-        
+    
+    if (strcmp(buffer, "env") == 0)
+    {
+        print_env();
+        continue;
+    }
+    
         if (buffer[0] == '\0')
             continue;
 
