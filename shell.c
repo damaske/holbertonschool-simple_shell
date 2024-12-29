@@ -77,7 +77,7 @@ int main(void)
 	if (strcmp(buffer , "exit") == 0)
 	{
 		free(buffer);
-		break;
+		exit(status);
 	}
 
         if (buffer[0] == '\0')
