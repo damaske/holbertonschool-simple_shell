@@ -33,6 +33,7 @@ char *get_full_path(char *arg, int *status)
         strcpy(full_path, arg);
         return (full_path);
     }
+
     if (get_path() == NULL)
     {
         fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
@@ -54,6 +55,14 @@ char *get_full_path(char *arg, int *status)
         }
         free(full_path);
         dir = strtok(NULL, ":");
+
+        if (access(full_path, X_OK) != 0)
+        {
+        fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
+        *status = 127;
+        free(full_path);
+        continue;
+        }
     }
     fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
     *status = 127;
