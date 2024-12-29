@@ -27,12 +27,15 @@ char *get_full_path(char *arg, int *status)
     char *dir;
     char *full_path;
 
+    // Handle relative and absolute paths directly
     if (access(arg, F_OK) == 0)
     {
         full_path = malloc(strlen(arg) + 1);
         strcpy(full_path, arg);
         return (full_path);
     }
+
+    // If it's not an absolute or relative path, check the PATH variable
     if (get_path() == NULL)
     {
         fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
