@@ -23,25 +23,23 @@ char *get_path(void)
 
 char *get_full_path(char *arg, int *status)
 {
-    char *full_path = NULL;
-    char *PATH = NULL;
-    char *dir = NULL;
+    char *PATH;
+    char *dir;
+    char *full_path;
 
     if (access(arg, F_OK) == 0)
     {
         full_path = malloc(strlen(arg) + 1);
         strcpy(full_path, arg);
-        return full_path;
+        return (full_path);
     }
-
-    if ((PATH = get_path()) == NULL)
+    if (get_path() == NULL)
     {
         fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
         *status = 127;
-        return NULL;
+        return (NULL);
     }
-
-    PATH = strdup(PATH);
+    PATH = strdup(get_path());
     dir = strtok(PATH, ":");
     while (dir)
     {
@@ -52,18 +50,16 @@ char *get_full_path(char *arg, int *status)
         if (access(full_path, F_OK) == 0)
         {
             free(PATH);
-            return full_path;
+            return (full_path);
         }
         free(full_path);
         dir = strtok(NULL, ":");
     }
-
     fprintf(stderr, "./hsh: 1: %s: not found\n", arg);
     *status = 127;
     free(PATH);
-    return NULL;
+    return (NULL);
 }
-
 
 int main(void)
 {
@@ -88,18 +84,17 @@ int main(void)
         newline = strchr(buffer, '\n');
         if (newline)
             *newline = '\0';
-
-        if (strcmp(buffer, "exit") == 0)
-        {
-            handle_exit();
-        }
+	if (strcmp(buffer, "exit") == 0)
+	{
+        handle_exit();
+	}
     
-        if (strcmp(buffer, "env") == 0)
-        {
-            print_env();
-            continue;
-        }
-        
+    if (strcmp(buffer, "env") == 0)
+    {
+        print_env();
+        continue;
+    }
+    
         if (buffer[0] == '\0')
             continue;
 
@@ -123,13 +118,6 @@ int main(void)
         if (full_path == NULL)
             continue;
 
-        if (access(full_path, X_OK) != 0)
-        {
-            perror("Permission denied");
-            free(full_path);
-            continue;
-        }
-
         if (fork() == 0)
         {
             if (execve(full_path, args, environ) == -1)
@@ -141,10 +129,10 @@ int main(void)
         else
         {
             wait(&status);
-            if (WIFEXITED(status))
-            {
-                status = WEXITSTATUS(status);
-            }
+	    if (WIFEXITED(status))
+	    {
+		    status = WEXITSTATUS(status);
+	    }
         }
 
         free(full_path);
